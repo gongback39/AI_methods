@@ -48,16 +48,26 @@ def is_number(s):
         return False
 
 def initialization(input, node_num):
+    sd = None
+    val = None
     if is_number(input):
-        return float(input)
+        sd = float(input)
     elif input == 'xavier':
-        return np.sqrt(1/node_num)
+        sd = np.sqrt(1/node_num)
     elif input == 'He':
-        return np.sqrt(2/node_num)
+        sd = np.sqrt(2/node_num)
+    elif input == 'ones':
+        val = 1
+    elif input == 'twoes':
+        val = 2
     else:
-        return 0.1
+        sd = 0.1
+    if sd is not None:
+        return np.random.randn(node_num, node_num) * sd
+    else:
+        return np.array([val]*node_num)
 
-def main(initializaton_method, activation_function, learning_rate):
+def main(initializaton_method, activation_function, learning_rate, iterations):
     x = np.random.randn(1000,100)
     node_num = 100
     hidden_layer_size = 5
@@ -66,7 +76,7 @@ def main(initializaton_method, activation_function, learning_rate):
     weights = {}
 
     for i in range(hidden_layer_size):
-        weights[i] = np.random.randn(node_num, node_num) * initialization(initializaton_method, node_num)
+        weights[i] = initialization(initializaton_method, node_num)
 
     activations = forward_pass(x, hidden_layer_size, weights, activation_function.activate)
 
@@ -78,31 +88,34 @@ def main(initializaton_method, activation_function, learning_rate):
     plt.show()
 
     y_true = np.random.randn(1000, node_num)
-    y_pred = activations[hidden_layer_size - 1]
 
-    for i in reversed(range(hidden_layer_size)):
-        if i == hidden_layer_size - 1:
-            delta = (y_pred - y_true) * activation_function.derivative(activations[i])
-        else:
-            delta = np.dot(delta, weights[i+1].T) * activation_function.derivative(activations[i])
+    for i in range(iterations):
+        y_pred = activations[hidden_layer_size - 1]
 
-        if i == 0:
-            weight_update = np.dot(x.T, delta)
-        else:
-            weight_update = np.dot(activations[i - 1].T, delta)
+        for i in reversed(range(hidden_layer_size)):
+            if i == hidden_layer_size - 1:
+                delta = (y_pred - y_true) * activation_function.derivative(activations[i])
+            else:
+                delta = np.dot(delta, weights[i+1].T) * activation_function.derivative(activations[i])
 
-        weights[i] -= learning_rate * weight_update 
+            if i == 0:
+                weight_update = np.dot(x.T, delta)
+            else:
+                weight_update = np.dot(activations[i - 1].T, delta)
 
-    updated_activations = forward_pass(x, hidden_layer_size, weights, activation_function.activate)
+            weights[i] -= learning_rate * weight_update 
 
-    for i, activation in updated_activations.items():
-        plt.subplot(1, len(updated_activations), i + 1)
-        plt.hist(activation.flatten(), bins=30, range=(0, 2))
-        plt.title(f'Layer {i+1} (Updated)')
-    plt.show()
+        updated_activations = forward_pass(x, hidden_layer_size, weights, activation_function.activate)
 
-initialization_method = input("input sd size or initialization method")
+        for i, activation in updated_activations.items():
+            plt.subplot(1, len(updated_activations), i + 1)
+            plt.hist(activation.flatten(), bins=30, range=(0, 2))
+            plt.title(f'Layer {i+1} (Updated)')
+        plt.show()
+
+initialization_method = input("input sd size or initialization method or str of number for same value")
 activation_func = input("input activation name(sigmoid or ReLU)")
 learning_rate = float(input('input learning rate'))
+iterations = int(input('input iterations'))
 
-main(initialization_method, ActivationFunc(activation_func), learning_rate)
+main(initialization_method, ActivationFunc(activation_func), learning_rate,iterations)
