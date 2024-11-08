@@ -36,7 +36,7 @@
 &emsp; Uniform : $w \sim N\left(-\sqrt{\frac{6}{n_{in} + n_{out}}}, \sqrt{\frac{6}{n_{in} + n_{out}}}\right)$ <br/>
 &emsp;&emsp; <img width="333" alt="image" src="https://github.com/user-attachments/assets/f39194df-0b38-4dbe-836b-11aa5f179edf"> <br/>
 &emsp; **therfore, shows good performance when combined with sigmoid or tanh functions**<br/>
-<br/>&emsp;**why it fits well with logistc functions?**
+<br/>&emsp;**why it fits well with logistc functions?** <br/>
 The densely packed values from a Gaussian distribution align with the approximately linear part of the logistic function.
  <br/> <br/>
 &emsp; **But when it combined with ReLU** <br/>
